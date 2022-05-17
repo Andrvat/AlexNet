@@ -1,6 +1,6 @@
 #include <iostream>
 #include "Labels.h"
-#include "PixelMatrix.h"
+#include "ImagesContainer.h"
 
 namespace {
     constexpr auto MATRIX_SIZE = 28;
@@ -12,7 +12,7 @@ int main() {
     labels.readFrom("../labels.txt");
     labels.printLabels(std::cout);
 
-    PixelMatrix images;
+    ImagesContainer images;
     images.readFrom("../pixels.txt", labels.getLabels().size(),  MATRIX_SIZE, EXTENSION_SIZE);
     return EXIT_SUCCESS;
 }

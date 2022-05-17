@@ -2,14 +2,14 @@
 // Created by andrvat on 17.05.22.
 //
 
-#ifndef ALEXNET_PIXELMATRIX_H
-#define ALEXNET_PIXELMATRIX_H
+#ifndef ALEXNET_IMAGESCONTAINER_H
+#define ALEXNET_IMAGESCONTAINER_H
 
 #include <vector>
 #include <string>
 #include <fstream>
 
-class PixelMatrix {
+class ImagesContainer {
 private:
     std::vector<std::vector<std::vector<double>>> matrices;
 public:
@@ -42,6 +42,11 @@ public:
         }
         stream.close();
     }
+
+
+    const std::vector<std::vector<double>> &getImageByIndex(const size_t i) const {
+        return matrices.at(i);
+    }
 };
 
-#endif //ALEXNET_PIXELMATRIX_H
+#endif //ALEXNET_IMAGESCONTAINER_H
