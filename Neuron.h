@@ -81,6 +81,10 @@ public:
         }
         output = sum / (double) (poolingSize * poolingSize);
     }
+
+    double getOutput() const {
+        return output;
+    }
 };
 
 #endif //ALEXNET_NEURON_H
