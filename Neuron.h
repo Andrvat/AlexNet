@@ -24,7 +24,6 @@ private:
 
     std::pair<int, int> matchPosition;
     double output = 0;
-    double gradient = 0;
 
     double static calcActivationFunction(const double s) {
         return std::max(0.0, s);
