@@ -17,7 +17,6 @@ int main() {
     srand(time(nullptr));
     Labels labels;
     labels.readFrom("../labels.txt");
-    labels.printLabels(std::cout);
 
     ImagesContainer images;
     images.readFrom("../pixels.txt", labels.getLabels().size(),  MATRIX_SIZE, EXTENSION_SIZE);

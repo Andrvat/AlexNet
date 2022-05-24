@@ -49,6 +49,10 @@ public:
         return matrices.at(i);
     }
 
+    int getLabelByIndex(const size_t i) const {
+        return labels.getLabels().at(i);
+    }
+
     size_t getImagesNumber () {
         return matrices.size();
     }

@@ -12,7 +12,7 @@
 class OutputNeuron {
 private:
     const int LOWER_RANDOM_BORDER = 0;
-    const int UPPER_RANDOM_BORDER = 1000;
+    const int UPPER_RANDOM_BORDER = 2500;
     const int SCALE = 10e4;
 
     std::vector<std::vector<double>> weights;

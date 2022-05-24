@@ -16,14 +16,21 @@ private:
     std::vector<std::vector<double>> image;
 
     std::vector<std::vector<double>> weights;
+
+    size_t imageSize;
 public:
-
-
-    void buildLayer(std::vector<std::vector<double>> &inputImage) {
-        this->image = inputImage;
+    void buildLayer() {
         for (int i = 0; i < NEURONS_NUMBER; ++i) {
-            neurons.emplace_back(image.size());
+            neurons.emplace_back(imageSize);
         }
+    }
+
+    void setImageSize(size_t size) {
+        this->imageSize = size;
+    }
+
+    void setImage(const std::vector<std::vector<double>> &matrix) {
+        this->image = matrix;
     }
 
     void activateNeurons() {

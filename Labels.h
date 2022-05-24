@@ -26,13 +26,6 @@ public:
     const std::vector<int> &getLabels() const {
         return labels;
     }
-
-    void printLabels(std::ostream &os) const {
-        for (auto x : labels) {
-            os << x << "\n";
-        }
-    }
-
 };
 
 #endif //ALEXNET_LABELS_H
