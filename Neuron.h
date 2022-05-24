@@ -70,7 +70,7 @@ public:
         output = calcActivationFunction(weightedSum);
     }
 
-    void makeAveragePooing(const std::vector<std::vector<double>> &image) {
+    void makeAveragePooling(const std::vector<std::vector<double>> &image) {
         auto poolingSize = weights.size();
         double sum = 0;
         for (auto i = 0; i < poolingSize; ++i) {

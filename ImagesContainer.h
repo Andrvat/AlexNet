@@ -12,6 +12,7 @@
 class ImagesContainer {
 private:
     std::vector<std::vector<std::vector<double>>> matrices;
+    Labels labels;
 public:
     void readFrom(const std::string &filename, const size_t imagesNumber, const size_t matrixSize,
                   const size_t extensionSize) {
@@ -46,6 +47,14 @@ public:
 
     const std::vector<std::vector<double>> &getImageByIndex(const size_t i) const {
         return matrices.at(i);
+    }
+
+    size_t getImagesNumber () {
+        return matrices.size();
+    }
+
+    void setLabels(const Labels &labels) {
+        this->labels = labels;
     }
 };
 

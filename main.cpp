@@ -19,5 +19,8 @@ int main() {
 
     ImagesContainer images;
     images.readFrom("../pixels.txt", labels.getLabels().size(),  MATRIX_SIZE, EXTENSION_SIZE);
+
+
+
     return EXIT_SUCCESS;
 }

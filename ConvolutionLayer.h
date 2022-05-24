@@ -14,19 +14,19 @@ private:
 
     std::vector<std::vector<double>> image;
 public:
-    ConvolutionLayer(const std::vector<std::vector<double>> &image, const size_t neuronsNumber,
-                     const size_t convolutionSize, const int offset) {
-        this->image = image;
-        for (auto i = 0; i < neuronsNumber; ++i) {
-            neurons.emplace_back(convolutionSize, NeuronType::CONVOLUTION);
-        }
+    ConvolutionLayer(const int imageSize, const size_t convolutionSize, const int offset) {
 
         auto curNeuron = 0;
-        for (int i = 0; i + convolutionSize <= image.size(); i += offset) {
-            for (int j = 0; j + convolutionSize <= image.size(); j += offset) {
+        for (int i = 0; i + convolutionSize <= imageSize; i += offset) {
+            for (int j = 0; j + convolutionSize <= imageSize; j += offset) {
+                neurons.emplace_back(convolutionSize, NeuronType::CONVOLUTION);
                 neurons.at(curNeuron++).setMatchPosition(std::make_pair(i, j));
             }
         }
+    }
+
+    void setInputMatrix(const std::vector<std::vector<double>> &matrix) {
+        this->image = matrix;
     }
 
     void makeConvolution() {

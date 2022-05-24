@@ -14,24 +14,23 @@ private:
 
     std::vector<std::vector<double>> image;
 public:
-    PoolingLayer(const std::vector<std::vector<double>> &image, const size_t neuronsNumber,
-                 const size_t poolingSize, const int offset) {
-        this->image = image;
-        for (auto i = 0; i < neuronsNumber; ++i) {
-            neurons.emplace_back(poolingSize, NeuronType::POOLING);
-        }
-
+    PoolingLayer(const int imageSize, const size_t poolingSize, const int offset) {
         auto curNeuron = 0;
-        for (int i = 0; i + poolingSize <= image.size(); i += offset) {
-            for (int j = 0; j + poolingSize <= image.size(); j += offset) {
+        for (int i = 0; i + poolingSize <= imageSize; i += offset) {
+            for (int j = 0; j + poolingSize <= imageSize; j += offset) {
+                neurons.emplace_back(poolingSize, NeuronType::POOLING);
                 neurons.at(curNeuron++).setMatchPosition(std::make_pair(i, j));
             }
         }
     }
 
+    void setInputMatrix(const std::vector<std::vector<double>> &matrix) {
+        this->image = matrix;
+    }
+
     void makeAvgPooling() {
         for (auto &neuron: neurons) {
-            neuron.makeAveragePooing(image);
+            neuron.makeAveragePooling(image);
         }
     }
 
