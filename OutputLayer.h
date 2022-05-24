@@ -15,12 +15,15 @@ private:
     std::vector<OutputNeuron> neurons;
     std::vector<std::vector<double>> image;
 
+    std::vector<std::vector<double>> weights;
 public:
-    explicit OutputLayer(std::vector<std::vector<double>> &image) {
+
+
+    void buildLayer(std::vector<std::vector<double>> &inputImage) {
+        this->image = inputImage;
         for (int i = 0; i < NEURONS_NUMBER; ++i) {
             neurons.emplace_back(image.size());
         }
-        this->image = image;
     }
 
     void activateNeurons() {
@@ -29,7 +32,6 @@ public:
         }
     }
 
-
     std::vector<double> getNeuronsOutput() {
         std::vector<double> outputs(NEURONS_NUMBER);
         for (int i = 0; i < NEURONS_NUMBER; ++i) {
@@ -37,7 +39,6 @@ public:
         }
         return outputs;
     }
-
 };
 
 #endif //ALEXNET_OUTPUTLAYER_H

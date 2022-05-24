@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Labels.h"
 #include "ImagesContainer.h"
+#include "AlexNet.h"
 
 namespace {
     constexpr auto MATRIX_SIZE = 28;
@@ -13,12 +14,17 @@ namespace {
 */
 
 int main() {
+    srand(time(nullptr));
     Labels labels;
     labels.readFrom("../labels.txt");
     labels.printLabels(std::cout);
 
     ImagesContainer images;
     images.readFrom("../pixels.txt", labels.getLabels().size(),  MATRIX_SIZE, EXTENSION_SIZE);
+    images.setLabels(labels);
+
+    AlexNet alexNet;
+    alexNet.train(images);
 
 
 

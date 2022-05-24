@@ -5,17 +5,22 @@
 #ifndef ALEXNET_CONVOLUTIONLAYER_H
 #define ALEXNET_CONVOLUTIONLAYER_H
 
-#include "Neuron.h"
+#include "HiddenNeuron.h"
 #include <cmath>
 
 class ConvolutionLayer {
 private:
-    std::vector<Neuron> neurons;
+    std::vector<HiddenNeuron> neurons;
 
     std::vector<std::vector<double>> image;
-public:
-    ConvolutionLayer(const int imageSize, const size_t convolutionSize, const int offset) {
 
+    size_t imageSize;
+public:
+    void setImageSize(const size_t size) {
+        this->imageSize = size;
+    }
+
+    void buildLayer(const size_t convolutionSize, const int offset) {
         auto curNeuron = 0;
         for (int i = 0; i + convolutionSize <= imageSize; i += offset) {
             for (int j = 0; j + convolutionSize <= imageSize; j += offset) {

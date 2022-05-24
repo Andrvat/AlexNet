@@ -6,15 +6,21 @@
 #define ALEXNET_POOLINGLAYER_H
 
 #include <valarray>
-#include "Neuron.h"
+#include "HiddenNeuron.h"
 
 class PoolingLayer {
 private:
-    std::vector<Neuron> neurons;
+    std::vector<HiddenNeuron> neurons;
 
     std::vector<std::vector<double>> image;
+
+    size_t imageSize;
 public:
-    PoolingLayer(const int imageSize, const size_t poolingSize, const int offset) {
+    void setImageSize(const size_t size) {
+        this->imageSize = size;
+    }
+
+    void buildLayer(const size_t poolingSize, const int offset) {
         auto curNeuron = 0;
         for (int i = 0; i + poolingSize <= imageSize; i += offset) {
             for (int j = 0; j + poolingSize <= imageSize; j += offset) {

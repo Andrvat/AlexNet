@@ -2,8 +2,8 @@
 // Created by andrvat on 19.05.22.
 //
 
-#ifndef ALEXNET_NEURON_H
-#define ALEXNET_NEURON_H
+#ifndef ALEXNET_HIDDENNEURON_H
+#define ALEXNET_HIDDENNEURON_H
 
 #include <vector>
 #include <cstdlib>
@@ -14,11 +14,11 @@ enum class NeuronType {
     POOLING
 };
 
-class Neuron {
+class HiddenNeuron {
 private:
     const int LOWER_RANDOM_BORDER = 0;
     const int UPPER_RANDOM_BORDER = 1000;
-    const int SCALE = 1000;
+    const int SCALE = 10e4;
 
     std::vector<std::vector<double>> weights;
 
@@ -34,7 +34,7 @@ private:
     }
 
 public:
-    Neuron(const size_t size, const NeuronType type) {
+    HiddenNeuron(const size_t size, const NeuronType type) {
         weights.resize(size, std::vector<double>(size));
         switch (type) {
             case NeuronType::CONVOLUTION:
@@ -86,4 +86,4 @@ public:
     }
 };
 
-#endif //ALEXNET_NEURON_H
+#endif //ALEXNET_HIDDENNEURON_H

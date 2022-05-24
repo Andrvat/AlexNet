@@ -13,7 +13,7 @@ class OutputNeuron {
 private:
     const int LOWER_RANDOM_BORDER = 0;
     const int UPPER_RANDOM_BORDER = 1000;
-    const int SCALE = 1000;
+    const int SCALE = 10e4;
 
     std::vector<std::vector<double>> weights;
     double output = 0;
@@ -40,6 +40,7 @@ private:
 
 public:
     explicit OutputNeuron(const size_t size) {
+        weights.resize(size, std::vector<double>(size));
         for (auto i = 0; i < size; ++i) {
             for (auto j = 0; j < size; ++j) {
                 weights[i][j] = ((double) (LOWER_RANDOM_BORDER +
