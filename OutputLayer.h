@@ -15,8 +15,6 @@ private:
     std::vector<OutputNeuron> neurons;
     std::vector<std::vector<double>> image;
 
-    std::vector<std::vector<double>> weights;
-
     size_t imageSize;
 public:
     void buildLayer() {
@@ -45,6 +43,19 @@ public:
             outputs[i] = neurons[i].getOutput();
         }
         return outputs;
+    }
+
+    void applyDeltaRule(std::vector<double> &errors) {
+        for (auto i = 0; i < neurons.size(); ++i) {
+            auto &neuron = neurons[i];
+            auto &error = errors[i];
+            neuron.calcLocalGradient(error);
+            neuron.updateWeights(this->image);
+        }
+    }
+
+    const std::vector<OutputNeuron> &getNeurons() const {
+        return neurons;
     }
 };
 

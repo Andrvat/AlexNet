@@ -6,6 +6,7 @@
 #define ALEXNET_CONVOLUTIONLAYER_H
 
 #include "HiddenNeuron.h"
+#include "OutputNeuron.h"
 #include <cmath>
 
 class ConvolutionLayer {
@@ -57,6 +58,25 @@ public:
             }
         }
         return outputs;
+    }
+
+    double applyDeltaRule(const std::vector<OutputNeuron> &prevLayerOutputNeurons,
+                          const std::vector<HiddenNeuron> &prevLayerHiddenNeurons,
+                          NextLayerType nextLayerType, NeuronType currentNeuronType) {
+        for (auto i = 0; i < neurons.size(); ++i) {
+            auto &neuron = neurons[i];
+            int rowIndex = (int) (i / sqrt((double) neurons.size()));
+            int columnIndex = i % (int) sqrt((double) neurons.size());
+            neuron.calcLocalGradient(prevLayerOutputNeurons,
+                                     prevLayerHiddenNeurons,
+                                     rowIndex, columnIndex,
+                                     nextLayerType, currentNeuronType);
+            neuron.updateWeights(this->image);
+        }
+    }
+
+    const std::vector<HiddenNeuron> &getNeurons() const {
+        return neurons;
     }
 };
 

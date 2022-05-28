@@ -8,22 +8,26 @@
 #include <vector>
 #include <cstdlib>
 #include "ImagesContainer.h"
+#include "OutputNeuron.h"
 
 enum class NeuronType {
     CONVOLUTION,
     POOLING
 };
 
+enum class NextLayerType {
+    OUTPUT,
+    NOT_OUTPUT,
+};
+
 class HiddenNeuron {
 private:
-    const int LOWER_RANDOM_BORDER = 0;
-    const int UPPER_RANDOM_BORDER = 2500;
-    const int SCALE = 10e4;
-
     std::vector<std::vector<double>> weights;
 
     std::pair<int, int> matchPosition;
     double output = 0;
+
+    double localGradient{};
 
     double static calcActivationFunction(const double s) {
         return std::max(0.0, s);
@@ -40,8 +44,8 @@ public:
             case NeuronType::CONVOLUTION:
                 for (auto i = 0; i < size; ++i) {
                     for (auto j = 0; j < size; ++j) {
-                        weights[i][j] = ((double) (LOWER_RANDOM_BORDER +
-                                                   rand() % (UPPER_RANDOM_BORDER - LOWER_RANDOM_BORDER + 1))) / SCALE;
+                        weights[i][j] = ((double) (AlexNetConstants::LOWER_RANDOM_BORDER +
+                                                   rand() % (AlexNetConstants::UPPER_RANDOM_BORDER - AlexNetConstants::LOWER_RANDOM_BORDER + 1))) / AlexNetConstants::SCALE;
                     }
                 }
                 break;
@@ -83,6 +87,67 @@ public:
 
     double getOutput() const {
         return output;
+    }
+
+    void calcLocalGradient(const std::vector<OutputNeuron> &prevLayerOutputNeurons,
+                           const std::vector<HiddenNeuron> &prevLayerHiddenNeurons,
+                           const int rowIndex, const int columnIndex,
+                           NextLayerType nextLayerType, NeuronType currentNeuronType) {
+        double sum = 0;
+        switch (currentNeuronType) {
+            case NeuronType::CONVOLUTION:
+                switch (nextLayerType) {
+                    case NextLayerType::NOT_OUTPUT:
+                        localGradient = calcDerivativeActivationFunction();
+                        for (auto &neuron: prevLayerHiddenNeurons) {
+                            if (matchPosition.first <= rowIndex &&
+                                matchPosition.first < rowIndex + weights.size() &&
+                                matchPosition.second <= columnIndex &&
+                                matchPosition.second < columnIndex + weights.size()) {
+                                sum += neuron.getLocalGradient() * neuron.getWeights()
+                                        .at(rowIndex - matchPosition.first)
+                                        .at(columnIndex - matchPosition.second);
+                            }
+                        }
+                        break;
+                    case NextLayerType::OUTPUT:
+                        localGradient = calcDerivativeActivationFunction();
+                        for (auto &neuron: prevLayerOutputNeurons) {
+                            sum += neuron.getLocalGradient() * neuron.getWeights().at(rowIndex).at(columnIndex);
+                        }
+                        break;
+                }
+                break;
+            case NeuronType::POOLING:
+                localGradient = output;
+                for (auto &neuron: prevLayerHiddenNeurons) {
+                    if (matchPosition.first <= rowIndex && matchPosition.first < rowIndex + weights.size() &&
+                        matchPosition.second <= columnIndex && matchPosition.second < columnIndex + weights.size()) {
+                        sum += neuron.getLocalGradient() * neuron.getWeights()
+                                .at(rowIndex - matchPosition.first)
+                                .at(columnIndex - matchPosition.second);
+                    }
+                }
+                break;
+        }
+        localGradient *= sum;
+    }
+
+    void updateWeights(const std::vector<std::vector<double>> &image) {
+        for (auto i = 0; i < weights.size(); ++i) {
+            for (auto j = 0; j < weights.size(); ++j) {
+                weights[i][j] += AlexNetConstants::LEARNING_RATE * localGradient *
+                                 image[i + matchPosition.first][j + matchPosition.second];
+            }
+        }
+    }
+
+    const std::vector<std::vector<double>> &getWeights() const {
+        return weights;
+    }
+
+    double getLocalGradient() const {
+        return localGradient;
     }
 };
 

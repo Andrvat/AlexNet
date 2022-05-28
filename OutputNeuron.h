@@ -8,15 +8,14 @@
 #include <vector>
 #include <cstdlib>
 #include <cmath>
+#include "Constants.h"
 
 class OutputNeuron {
 private:
-    const int LOWER_RANDOM_BORDER = 0;
-    const int UPPER_RANDOM_BORDER = 2500;
-    const int SCALE = 10e4;
-
     std::vector<std::vector<double>> weights;
     double output = 0;
+
+    double localGradient;
 
     double calcWeightedSum(std::vector<std::vector<double>> &image) {
         double sum = 0;
@@ -32,6 +31,10 @@ private:
         return 1 / (1 + pow(exp(1), -s));
     }
 
+    static double calcSigmoidDerivative(const double s) {
+        return exp(-s) / pow((1 + exp(-s)), 2);
+    }
+
     double calcActivationFunction(std::vector<std::vector<double>> &image) {
         auto weightedSum = calcWeightedSum(image);
         auto sigmoid = calcSigmoid(weightedSum);
@@ -39,12 +42,15 @@ private:
     }
 
 public:
+
     explicit OutputNeuron(const size_t size) {
         weights.resize(size, std::vector<double>(size));
         for (auto i = 0; i < size; ++i) {
             for (auto j = 0; j < size; ++j) {
-                weights[i][j] = ((double) (LOWER_RANDOM_BORDER +
-                                           rand() % (UPPER_RANDOM_BORDER - LOWER_RANDOM_BORDER + 1))) / SCALE;
+                weights[i][j] = ((double) (AlexNetConstants::LOWER_RANDOM_BORDER +
+                                           rand() % (AlexNetConstants::UPPER_RANDOM_BORDER -
+                                                     AlexNetConstants::LOWER_RANDOM_BORDER + 1)))
+                                / AlexNetConstants::SCALE;
             }
         }
     }
@@ -56,6 +62,27 @@ public:
     double getOutput() const {
         return output;
     }
+
+    void calcLocalGradient(const double error) {
+        localGradient = error * OutputNeuron::calcSigmoidDerivative(output);
+    }
+
+    void updateWeights(std::vector<std::vector<double>> &image) {
+        for (auto i = 0; i < weights.size(); ++i) {
+            for (auto j = 0; j < weights.size(); ++j) {
+                weights[i][j] += AlexNetConstants::LEARNING_RATE * localGradient * image[i][j];
+            }
+        }
+    }
+
+    const std::vector<std::vector<double>> &getWeights() const {
+        return weights;
+    }
+
+    double getLocalGradient() const {
+        return localGradient;
+    }
+
 
 };
 

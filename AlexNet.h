@@ -9,7 +9,10 @@
 #include "PoolingLayer.h"
 #include "OutputLayer.h"
 
+#define DEBUG
+
 class AlexNet {
+    // TODO: 1. write cost function calculation
 private:
 
     ConvolutionLayer *convolutionLayer_1;
@@ -17,6 +20,7 @@ private:
     ConvolutionLayer *convolutionLayer_2;
     OutputLayer *outputLayer;
 
+    std::vector<double> costFunction;
 public:
     AlexNet() {
         convolutionLayer_1 = new ConvolutionLayer();
@@ -32,69 +36,109 @@ public:
         delete outputLayer;
     }
 
-    void train(ImagesContainer &imagesContainer) {
-        std::vector<std::vector<double>> outputs;
+    // TODO: calculate cost function
+    void train(ImagesContainer &imagesContainer, const size_t epochNumber) {
         std::vector<double> neuralNetworkOutputs;
-        for (int i = 0; i < imagesContainer.getImagesNumber(); ++i) {
-            const auto &image = imagesContainer.getImageByIndex(i);
-            convolutionLayer_1->setInputMatrix(image);
-            if (i == 0) {
-                convolutionLayer_1->setImageSize(image.size());
-                convolutionLayer_1->buildLayer(5, 3);
-            }
-            convolutionLayer_1->makeConvolution();
-
-            outputs = convolutionLayer_1->getNeuronsOutput();
-
-            poolingLayer_1->setInputMatrix(outputs);
-            if (i == 0) {
-                poolingLayer_1->setImageSize(outputs.size());
-                poolingLayer_1->buildLayer(2, 1);
-            }
-            poolingLayer_1->makeAvgPooling();
-
-            outputs = poolingLayer_1->getNeuronsOutput();
-
-            convolutionLayer_2->setInputMatrix(outputs);
-            if (i == 0) {
-                convolutionLayer_2->setImageSize(outputs.size());
-                convolutionLayer_2->buildLayer(3, 1);
-            }
-            convolutionLayer_2->makeConvolution();
-
-            outputs = convolutionLayer_2->getNeuronsOutput();
-
-            outputLayer->setImage(outputs);
-            if (i == 0) {
-                outputLayer->setImageSize(outputs.size());
-                outputLayer->buildLayer();
-            }
-            outputLayer->activateNeurons();
-
-            neuralNetworkOutputs = outputLayer->getNeuronsOutput();
-            std::cout << "Network outputs: " << std::endl;
-            for (auto x : neuralNetworkOutputs) {
-                std::cout << x << " ";
-            }
-            std::cout << std::endl;
-            std::vector<int> maxProbabilityLabels;
-            double currentMax = 0;
-            for (auto j = 0; j < neuralNetworkOutputs.size(); ++j) {
-                if (neuralNetworkOutputs[j] > currentMax) {
-                    currentMax = neuralNetworkOutputs[j];
-                    maxProbabilityLabels.clear();
-                    maxProbabilityLabels.push_back(j + 1);
-                } else if (neuralNetworkOutputs[j] == currentMax) {
-                    maxProbabilityLabels.push_back(j + 1);
+        size_t currentEpoch = 0;
+        while (currentEpoch < epochNumber) {
+            for (int i = 0; i < imagesContainer.getImagesNumber(); ++i) {
+                const auto &image = imagesContainer.getImageByIndex(i);
+                this->makeStraightRunning(image, currentEpoch, i);
+                neuralNetworkOutputs = outputLayer->getNeuronsOutput();
+                std::vector<int> maxProbabilityLabels = AlexNet::calcMaxProbabilityLabels(neuralNetworkOutputs);
+#ifdef DEBUG
+                if (i == 0) {
+                    std::cout << "Epoch number: " << currentEpoch << std::endl;
+                    std::cout << "Network outputs: " << std::endl;
+                    for (auto x: neuralNetworkOutputs) {
+                        std::cout << x << " ";
+                    }
+                    std::cout << std::endl;
+                    std::cout << "Real: " << imagesContainer.getLabelByIndex(i) << std::endl;
+                    std::cout << "AlexNet: { ";
+                    for (auto x: maxProbabilityLabels) {
+                        std::cout << x << " ";
+                    }
+                    std::cout << "}" << std::endl;
                 }
+#endif
+                auto errorValues = AlexNet::calcErrorValues(imagesContainer.getLabelByIndex(i), neuralNetworkOutputs);
+                this->makeBackPropagation(errorValues);
             }
-            std::cout << "Real: " << imagesContainer.getLabelByIndex(i) << std::endl;
-            std::cout << "AlexNet: ";
-            for (auto x : maxProbabilityLabels) {
-                std::cout << x << " ";
-            }
-            std::cout << std::endl;
+            currentEpoch++;
         }
+    }
+
+private:
+    static std::vector<int> calcMaxProbabilityLabels(std::vector<double> &neuralNetworkOutputs) {
+        std::vector<int> maxProbabilityLabels;
+        double currentMax = 0;
+        for (auto j = 0; j < neuralNetworkOutputs.size(); ++j) {
+            if (neuralNetworkOutputs[j] > currentMax) {
+                currentMax = neuralNetworkOutputs[j];
+                maxProbabilityLabels.clear();
+                maxProbabilityLabels.push_back(j + 1);
+            } else if (neuralNetworkOutputs[j] == currentMax) {
+                maxProbabilityLabels.push_back(j + 1);
+            }
+        }
+        return maxProbabilityLabels;
+    }
+
+    void makeBackPropagation(std::vector<double> &errors) {
+        outputLayer->applyDeltaRule(errors);
+        convolutionLayer_2->applyDeltaRule(outputLayer->getNeurons(), std::vector<HiddenNeuron>(),
+                                           NextLayerType::OUTPUT, NeuronType::CONVOLUTION);
+        poolingLayer_1->applyDeltaRule(convolutionLayer_2->getNeurons());
+        convolutionLayer_1->applyDeltaRule(std::vector<OutputNeuron>(), poolingLayer_1->getNeurons(),
+                                           NextLayerType::NOT_OUTPUT, NeuronType::CONVOLUTION);
+    }
+
+    void makeStraightRunning(const std::vector<std::vector<double>> &image,
+                             const size_t epochNumber, const int imageIndex) {
+        std::vector<std::vector<double>> outputs;
+        convolutionLayer_1->setInputMatrix(image);
+        if (imageIndex == 0 && epochNumber == 0) {
+            convolutionLayer_1->setImageSize(image.size());
+            convolutionLayer_1->buildLayer(5, 3);
+        }
+        convolutionLayer_1->makeConvolution();
+
+        outputs = convolutionLayer_1->getNeuronsOutput();
+
+        poolingLayer_1->setInputMatrix(outputs);
+        if (imageIndex == 0 && epochNumber == 0) {
+            poolingLayer_1->setImageSize(outputs.size());
+            poolingLayer_1->buildLayer(2, 1);
+        }
+        poolingLayer_1->makeAvgPooling();
+
+        outputs = poolingLayer_1->getNeuronsOutput();
+
+        convolutionLayer_2->setInputMatrix(outputs);
+        if (imageIndex == 0 && epochNumber == 0) {
+            convolutionLayer_2->setImageSize(outputs.size());
+            convolutionLayer_2->buildLayer(3, 1);
+        }
+        convolutionLayer_2->makeConvolution();
+
+        outputs = convolutionLayer_2->getNeuronsOutput();
+
+        outputLayer->setImage(outputs);
+        if (imageIndex == 0 && epochNumber == 0) {
+            outputLayer->setImageSize(outputs.size());
+            outputLayer->buildLayer();
+        }
+        outputLayer->activateNeurons();
+    }
+
+    static std::vector<double> calcErrorValues(const int realLabel, const std::vector<double> &neuralNetworkOutputs) {
+        std::vector<double> errors(neuralNetworkOutputs.size());
+        for (auto i = 0; i < neuralNetworkOutputs.size(); ++i) {
+            auto output = neuralNetworkOutputs[i];
+            errors[i] = (i + 1 == realLabel) ? 1 - output : output;
+        }
+        return errors;
     }
 };
 

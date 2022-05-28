@@ -58,6 +58,23 @@ public:
         }
         return outputs;
     }
+
+    double applyDeltaRule(const std::vector<HiddenNeuron> &prevLayerNeurons) {
+        for (auto i = 0; i < neurons.size(); ++i) {
+            auto &neuron = neurons[i];
+            int rowIndex = (int) (i / sqrt((double) neurons.size()));
+            int columnIndex = i % (int) sqrt((double) neurons.size());
+            neuron.calcLocalGradient(std::vector<OutputNeuron>(),
+                                     prevLayerNeurons,
+                                     rowIndex, columnIndex,
+                                     NextLayerType::NOT_OUTPUT, NeuronType::POOLING);
+            neuron.updateWeights(this->image);
+        }
+    }
+
+    const std::vector<HiddenNeuron> &getNeurons() const {
+        return neurons;
+    }
 };
 
 #endif //ALEXNET_POOLINGLAYER_H
