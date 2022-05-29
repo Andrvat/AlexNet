@@ -46,6 +46,9 @@ public:
                     for (auto j = 0; j < size; ++j) {
                         weights[i][j] = ((double) (AlexNetConstants::LOWER_RANDOM_BORDER +
                                                    rand() % (AlexNetConstants::UPPER_RANDOM_BORDER - AlexNetConstants::LOWER_RANDOM_BORDER + 1))) / AlexNetConstants::SCALE;
+                        if (weights[i][j] == 0) {
+                            weights[i][j] = AlexNetConstants::DEFAULT_RANDOM_WEIGHT;
+                        }
                     }
                 }
                 break;

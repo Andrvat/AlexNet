@@ -7,9 +7,10 @@
 
 namespace AlexNetConstants {
     const auto LEARNING_RATE = 10e-5;
-    const int LOWER_RANDOM_BORDER = -8000;
-    const int UPPER_RANDOM_BORDER = 8000;
-    const int SCALE = 10e4;
+    constexpr auto LOWER_RANDOM_BORDER = -1000;
+    constexpr auto UPPER_RANDOM_BORDER = 1000;
+    constexpr auto SCALE = 10e3;
+    constexpr auto DEFAULT_RANDOM_WEIGHT = 0.006;
 }
 
 #endif //ALEXNET_CONSTANTS_H

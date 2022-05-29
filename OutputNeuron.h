@@ -51,6 +51,9 @@ public:
                                            rand() % (AlexNetConstants::UPPER_RANDOM_BORDER -
                                                      AlexNetConstants::LOWER_RANDOM_BORDER + 1)))
                                 / AlexNetConstants::SCALE;
+                if (weights[i][j] == 0) {
+                    weights[i][j] = AlexNetConstants::DEFAULT_RANDOM_WEIGHT;
+                }
             }
         }
     }

@@ -9,8 +9,8 @@
 #include "PoolingLayer.h"
 #include "OutputLayer.h"
 
-#define DEBUG
-#define DEBUG_ERROR
+#define DEBUG_OUTPUTS_PRINTING
+#define DEBUG_ERRORS_PRINTING
 
 class AlexNet {
 private:
@@ -44,29 +44,33 @@ public:
         while (currentEpoch < epochNumber) {
             std::cout << "Current epoch: " << currentEpoch << std::endl;
             for (int i = 0; i < imagesContainer.getImagesNumber(); ++i) {
-                if (imagesContainer.getLabelByIndex(i) != 9) {
+                if (
+                        imagesContainer.getLabelByIndex(i) != 0
+//                        && imagesContainer.getLabelByIndex(i) != 7
+                        ) {
                     continue;
                 }
                 const auto &image = imagesContainer.getImageByIndex(i);
                 this->makeStraightRunning(image, isNeededBuild);
                 neuralNetworkOutputs = outputLayer->getNeuronsOutput();
                 std::vector<int> maxProbabilityLabels = AlexNet::calcMaxProbabilityLabels(neuralNetworkOutputs);
-#ifdef DEBUG
+#ifdef DEBUG_OUTPUTS_PRINTING
                 if (currentEpoch == epochNumber - 1) {
-                    std::cout << "------------------------------------------" << std::endl;
-                    std::cout << "Network outputs: " << std::endl;
-                    for (auto x: neuralNetworkOutputs) {
-                        std::cout << x << " ";
-                    }
-                    std::cout << std::endl;
-                    std::cout << "Real: " << imagesContainer.getLabelByIndex(i) << std::endl;
-                    std::cout << "AlexNet: { ";
-                    for (auto x: maxProbabilityLabels) {
-                        std::cout << x << " ";
-                    }
-                    std::cout << "}" << std::endl;
-                    std::cout << "------------------------------------------" << std::endl;
+                    std::cout << "FINISHING..." << std::endl;
                 }
+                std::cout << "------------------------------------------" << std::endl;
+                std::cout << "Network outputs: " << std::endl;
+                for (auto x: neuralNetworkOutputs) {
+                    std::cout << x << " ";
+                }
+                std::cout << std::endl;
+                std::cout << "Real: " << imagesContainer.getLabelByIndex(i) << std::endl;
+                std::cout << "AlexNet: { ";
+                for (auto x: maxProbabilityLabels) {
+                    std::cout << x << " ";
+                }
+                std::cout << "}" << std::endl;
+                std::cout << "------------------------------------------" << std::endl;
 #endif
                 auto errorValues = AlexNet::calcErrorValues(imagesContainer.getLabelByIndex(i), neuralNetworkOutputs);
                 this->makeBackPropagation(errorValues);
@@ -144,7 +148,7 @@ private:
             auto output = neuralNetworkOutputs[i];
             errors[i] = (i == realLabel) ? 1 - output : 0 - output;
         }
-#ifdef DEBUG_ERROR
+#ifdef DEBUG_ERRORS_PRINTING
         std::cout << "***************************************************" << std::endl;
         std::cout << "For real label: " << realLabel << " got errors: ";
         for (auto x: errors) {
