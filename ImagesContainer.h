@@ -57,8 +57,8 @@ public:
         return matrices.size();
     }
 
-    void setLabels(const Labels &labels) {
-        this->labels = labels;
+    void setLabels(const Labels &newLabels) {
+        this->labels = newLabels;
     }
 };
 

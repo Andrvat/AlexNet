@@ -12,15 +12,14 @@
 #define DEBUG
 
 class AlexNet {
-    // TODO: 1. write cost function calculation
 private:
-
     ConvolutionLayer *convolutionLayer_1;
     PoolingLayer *poolingLayer_1;
     ConvolutionLayer *convolutionLayer_2;
     OutputLayer *outputLayer;
 
     std::vector<double> costFunction;
+
 public:
     AlexNet() {
         convolutionLayer_1 = new ConvolutionLayer();
@@ -40,15 +39,17 @@ public:
     void train(ImagesContainer &imagesContainer, const size_t epochNumber) {
         std::vector<double> neuralNetworkOutputs;
         size_t currentEpoch = 0;
+        bool isNeededBuild = true;
         while (currentEpoch < epochNumber) {
-            for (int i = 0; i < imagesContainer.getImagesNumber(); ++i) {
+            std::cout << "Current epoch: " << currentEpoch << std::endl;
+            for (int i = 1; i < 3; ++i) {
                 const auto &image = imagesContainer.getImageByIndex(i);
-                this->makeStraightRunning(image, currentEpoch, i);
+                this->makeStraightRunning(image, isNeededBuild);
                 neuralNetworkOutputs = outputLayer->getNeuronsOutput();
+                // TODO: why we calculate max prob labels
                 std::vector<int> maxProbabilityLabels = AlexNet::calcMaxProbabilityLabels(neuralNetworkOutputs);
 #ifdef DEBUG
-                if (i == 0) {
-                    std::cout << "Epoch number: " << currentEpoch << std::endl;
+                if (currentEpoch == epochNumber - 1) {
                     std::cout << "Network outputs: " << std::endl;
                     for (auto x: neuralNetworkOutputs) {
                         std::cout << x << " ";
@@ -60,10 +61,12 @@ public:
                         std::cout << x << " ";
                     }
                     std::cout << "}" << std::endl;
+                    std::cout << "------------------------------------------" << std::endl;
                 }
 #endif
                 auto errorValues = AlexNet::calcErrorValues(imagesContainer.getLabelByIndex(i), neuralNetworkOutputs);
                 this->makeBackPropagation(errorValues);
+                isNeededBuild = false;
             }
             currentEpoch++;
         }
@@ -77,9 +80,9 @@ private:
             if (neuralNetworkOutputs[j] > currentMax) {
                 currentMax = neuralNetworkOutputs[j];
                 maxProbabilityLabels.clear();
-                maxProbabilityLabels.push_back(j + 1);
+                maxProbabilityLabels.push_back(j);
             } else if (neuralNetworkOutputs[j] == currentMax) {
-                maxProbabilityLabels.push_back(j + 1);
+                maxProbabilityLabels.push_back(j);
             }
         }
         return maxProbabilityLabels;
@@ -94,11 +97,10 @@ private:
                                            NextLayerType::NOT_OUTPUT, NeuronType::CONVOLUTION);
     }
 
-    void makeStraightRunning(const std::vector<std::vector<double>> &image,
-                             const size_t epochNumber, const int imageIndex) {
+    void makeStraightRunning(const std::vector<std::vector<double>> &image, const bool isNeededBuild) {
         std::vector<std::vector<double>> outputs;
         convolutionLayer_1->setInputMatrix(image);
-        if (imageIndex == 0 && epochNumber == 0) {
+        if (isNeededBuild) {
             convolutionLayer_1->setImageSize(image.size());
             convolutionLayer_1->buildLayer(5, 3);
         }
@@ -107,7 +109,7 @@ private:
         outputs = convolutionLayer_1->getNeuronsOutput();
 
         poolingLayer_1->setInputMatrix(outputs);
-        if (imageIndex == 0 && epochNumber == 0) {
+        if (isNeededBuild) {
             poolingLayer_1->setImageSize(outputs.size());
             poolingLayer_1->buildLayer(2, 1);
         }
@@ -116,7 +118,7 @@ private:
         outputs = poolingLayer_1->getNeuronsOutput();
 
         convolutionLayer_2->setInputMatrix(outputs);
-        if (imageIndex == 0 && epochNumber == 0) {
+        if (isNeededBuild) {
             convolutionLayer_2->setImageSize(outputs.size());
             convolutionLayer_2->buildLayer(3, 1);
         }
@@ -125,7 +127,7 @@ private:
         outputs = convolutionLayer_2->getNeuronsOutput();
 
         outputLayer->setImage(outputs);
-        if (imageIndex == 0 && epochNumber == 0) {
+        if (isNeededBuild) {
             outputLayer->setImageSize(outputs.size());
             outputLayer->buildLayer();
         }
@@ -136,7 +138,7 @@ private:
         std::vector<double> errors(neuralNetworkOutputs.size());
         for (auto i = 0; i < neuralNetworkOutputs.size(); ++i) {
             auto output = neuralNetworkOutputs[i];
-            errors[i] = (i + 1 == realLabel) ? 1 - output : output;
+            errors[i] = (i == realLabel) ? 1 - output : 0 - output;
         }
         return errors;
     }
