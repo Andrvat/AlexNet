@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include "Constants.h"
 
 class ImagesContainer {
 private:
@@ -53,8 +54,26 @@ public:
         return labels.getLabels().at(i);
     }
 
-    size_t getImagesNumber () {
+    size_t getImagesNumber() {
         return matrices.size();
+    }
+
+    std::vector<size_t> getTrainingImageIndexes() {
+        std::vector<size_t> indexes;
+        size_t trainingIndexesSize = matrices.size() * AlexNetConstants::TRAINING_SHARE;
+        for (auto i = 0; i < trainingIndexesSize; ++i) {
+            indexes.push_back(i);
+        }
+        return indexes;
+    }
+
+    std::vector<size_t> getTestImageIndexes() {
+        std::vector<size_t> indexes;
+        size_t trainingIndexesSize = matrices.size() * AlexNetConstants::TRAINING_SHARE + 1;
+        for (auto i = trainingIndexesSize; i < matrices.size(); ++i) {
+            indexes.push_back(i);
+        }
+        return indexes;
     }
 
     void setLabels(const Labels &newLabels) {

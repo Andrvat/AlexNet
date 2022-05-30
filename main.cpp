@@ -23,7 +23,8 @@ int main() {
     images.setLabels(labels);
 
     AlexNet alexNet;
-    alexNet.train(images, 10);
+    alexNet.train(images, 1);
+    alexNet.test(images);
 
 
 

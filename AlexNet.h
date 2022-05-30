@@ -38,12 +38,14 @@ public:
 
     // TODO: calculate cost function
     void train(ImagesContainer &imagesContainer, const size_t epochNumber) {
+        std::cout << "TRAINING.................................." << std::endl;
         std::vector<double> neuralNetworkOutputs;
         size_t currentEpoch = 0;
         bool isNeededBuild = true;
+        auto trainImageIndexes = imagesContainer.getTrainingImageIndexes();
         while (currentEpoch < epochNumber) {
             std::cout << "Current epoch: " << currentEpoch << std::endl;
-            for (int i = 0; i < imagesContainer.getImagesNumber(); ++i) {
+            for (const auto i: trainImageIndexes) {
                 if (
                         imagesContainer.getLabelByIndex(i) != 0
 //                        && imagesContainer.getLabelByIndex(i) != 7
@@ -58,19 +60,7 @@ public:
                 if (currentEpoch == epochNumber - 1) {
                     std::cout << "FINISHING..." << std::endl;
                 }
-                std::cout << "------------------------------------------" << std::endl;
-                std::cout << "Network outputs: " << std::endl;
-                for (auto x: neuralNetworkOutputs) {
-                    std::cout << x << " ";
-                }
-                std::cout << std::endl;
-                std::cout << "Real: " << imagesContainer.getLabelByIndex(i) << std::endl;
-                std::cout << "AlexNet: { ";
-                for (auto x: maxProbabilityLabels) {
-                    std::cout << x << " ";
-                }
-                std::cout << "}" << std::endl;
-                std::cout << "------------------------------------------" << std::endl;
+                printResults(imagesContainer, neuralNetworkOutputs, maxProbabilityLabels, i);
 #endif
                 auto errorValues = AlexNet::calcErrorValues(imagesContainer.getLabelByIndex(i), neuralNetworkOutputs);
                 this->makeBackPropagation(errorValues);
@@ -80,7 +70,38 @@ public:
         }
     }
 
+    void test(ImagesContainer &imagesContainer) {
+        std::cout << "TESTING.................................." << std::endl;
+        std::vector<double> neuralNetworkOutputs;
+        auto testImageIndexes = imagesContainer.getTestImageIndexes();
+        for (const auto i: testImageIndexes) {
+            const auto &image = imagesContainer.getImageByIndex(i);
+            this->makeStraightRunning(image, false);
+            neuralNetworkOutputs = outputLayer->getNeuronsOutput();
+            std::vector<int> maxProbabilityLabels = AlexNet::calcMaxProbabilityLabels(neuralNetworkOutputs);
+            printResults(imagesContainer, neuralNetworkOutputs, maxProbabilityLabels, i);
+        }
+    }
+
 private:
+    static void printResults(ImagesContainer &imagesContainer,
+                             const std::vector<double> &neuralNetworkOutputs,
+                             const std::vector<int> &maxProbabilityLabels, const size_t i) {
+        std::cout << "------------------------------------------" << std::endl;
+        std::cout << "Network outputs: " << std::endl;
+        for (auto x: neuralNetworkOutputs) {
+            std::cout << x << " ";
+        }
+        std::cout << std::endl;
+        std::cout << "Real: " << imagesContainer.getLabelByIndex(i) << std::endl;
+        std::cout << "AlexNet: { ";
+        for (auto x: maxProbabilityLabels) {
+            std::cout << x << " ";
+        }
+        std::cout << "}" << std::endl;
+        std::cout << "------------------------------------------" << std::endl;
+    }
+
     static std::vector<int> calcMaxProbabilityLabels(std::vector<double> &neuralNetworkOutputs) {
         std::vector<int> maxProbabilityLabels;
         double currentMax = 0;
