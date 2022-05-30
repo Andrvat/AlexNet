@@ -43,7 +43,7 @@ public:
             std::cout << "Current epoch: " << currentEpoch << std::endl;
             for (const auto i: trainImageIndexes) {
                 if (
-                        imagesContainer.getLabelByIndex(i) != 0
+                        imagesContainer.getLabelByIndex(i) != 3
 //                        && imagesContainer.getLabelByIndex(i) != 7
                         ) {
                     continue;
