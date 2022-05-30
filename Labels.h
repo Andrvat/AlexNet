@@ -1,8 +1,4 @@
-//
-// Created by andrvat on 17.05.22.
-//
-
-#ifndef ALEXNET_LABELS_H
+/#ifndef ALEXNET_LABELS_H
 #define ALEXNET_LABELS_H
 
 

@@ -1,7 +1,3 @@
-//
-// Created by andrvat on 28.05.22.
-//
-
 #ifndef ALEXNET_CONSTANTS_H
 #define ALEXNET_CONSTANTS_H
 

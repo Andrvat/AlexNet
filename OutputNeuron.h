@@ -1,7 +1,3 @@
-//
-// Created by andrvat on 22.05.22.
-//
-
 #ifndef ALEXNET_OUTPUTNEURON_H
 #define ALEXNET_OUTPUTNEURON_H
 

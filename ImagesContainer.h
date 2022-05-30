@@ -1,7 +1,3 @@
-//
-// Created by andrvat on 17.05.22.
-//
-
 #ifndef ALEXNET_IMAGESCONTAINER_H
 #define ALEXNET_IMAGESCONTAINER_H
 

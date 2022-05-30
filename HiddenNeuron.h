@@ -1,7 +1,3 @@
-//
-// Created by andrvat on 19.05.22.
-//
-
 #ifndef ALEXNET_HIDDENNEURON_H
 #define ALEXNET_HIDDENNEURON_H
 
